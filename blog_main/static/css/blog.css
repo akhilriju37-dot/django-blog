@@ -1,0 +1,111 @@
+
+/* General */
+
+body {  
+    font-family: Arial, sans-serif;
+    background-color: #f9faf8;
+    color: #333;
+}
+
+
+/* Navbar */
+
+.navbar {
+    padding: 15px 0;
+}
+
+.navbar-brand {
+    letter-spacing: -1px;
+}
+
+
+/* Hero */
+
+.hero-section {
+    background-color: #eaf2ff;
+    padding: 90px 20px;
+}
+
+.hero-section h1 {
+    font-size: 45px;
+    font-weight: bold;
+    margin-bottom: 15px;
+}
+
+
+/* Section title */
+
+.section-title {
+    font-weight: bold;
+    color: #222;
+}
+
+
+/* Blog Cards */
+
+.blog-card {
+    border: none;
+    border-radius: 10px;
+    overflow: hidden;
+    transition: transform 0.3s ease,
+                box-shadow 0.3s ease;
+}
+
+.blog-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+}
+
+.blog-card img {
+    height: 200px;
+    object-fit: cover;
+}
+
+.blog-card .card-title {
+    font-weight: bold;
+}
+
+.blog-card .card-text {
+    color: #666;
+    line-height: 1.6;
+}
+
+
+/* Sidebar */
+
+.sidebar-box {
+    background-color: white;
+    padding: 25px;
+    border-radius: 10px;
+    border: 1px solid #eee;
+}
+
+.sidebar-box h5 {
+    font-weight: bold;
+    margin-bottom: 20px;
+}
+
+
+/* Footer */
+
+.footer {
+    background-color: #212529;
+    color: white;
+    padding: 25px 0;
+    margin-top: 50px;
+}
+
+
+/* Responsive */
+
+@media (max-width: 768px) {
+
+    .hero-section {
+        padding: 60px 15px;
+    }
+
+    .hero-section h1 {
+        font-size: 32px;
+    }
+
+}
