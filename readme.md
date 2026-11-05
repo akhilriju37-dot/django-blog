@@ -1,4 +1,5 @@
-
+Username: djangoadmin
+Password: 1234
 
 # Django Blogging System
 
@@ -114,4 +115,17 @@ media configure ------->
 
     urls.py ------>
         urlpatterns =[............
-        .....]+static(settings.MEDIA_URL, document_root.MEDIA_ROOT)
+        .....]+static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+
+    models.py add Blog features-------->
+        - title,slug,category,featured image,short description,blog bogy, status, is featured,created at,updated at
+        - admin register the Blog
+        - install pillow
+        - run in makemigrations & migrate
+        Slug auto gen------->
+            create a class in admin.py :- BlogAdmin(admin.ModelAdmin)----->
+                create prepopulated field add slug & register BlogAdmin
+                and create list display, search field, list editable
+        -create a status choice
+            add draft & published
+        
