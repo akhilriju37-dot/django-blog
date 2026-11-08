@@ -89,32 +89,34 @@
         <div class="col-lg-8">
 
             <h2 class="section-title mb-4">
-                Latest Articles
+                Featured Articles
             </h2>
 
             <div class="row g-4">
-
-                <!-- Blog Card 1 -->
+                {% for post in featured_Post %}
+                    
+                <!-- Blog Cards -->
                 <div class="col-md-6">
                     <div class="card blog-card h-100">
 
-                        <img src="static/images/Technology_python.png"
+                        <img src="{{ post.featured_image.url }}"
                              class="card-img-top"
                              alt="Programming">
 
                         <div class="card-body">
-
+                            
                             <span class="badge bg-primary">
-                                Technology
+                                {{ post.category.category_name }}
                             </span>
-
+                            <small class="mb-1 text-muted">
+                                {{ post.created_at | timesince }} ago | {{ post.author }}
+                            </small>
                             <h5 class="card-title mt-3">
-                                Getting Started with Python
+                                {{ post.title }}
                             </h5>
 
                             <p class="card-text">
-                                Learn the fundamentals of Python
-                                programming and build your skills.
+                                {{ post.short_description | truncatewords:15 }}
                             </p>
 
                             <a href="#" class="btn btn-outline-primary">
@@ -122,31 +124,40 @@
                             </a>
 
                         </div>
-                    </div>
+                    </div>                   
                 </div>
-
-
-                <!-- Blog Card 2 -->
+               {% endfor %}           
+            </div> 
+            <div class="col-lg-15">
+                <br><br>
+                 <h2 class="section-title mb-4">
+                Latest Articles
+                </h2>
+                <div class="row g-4">
+                {% for post in latest_Posts %}
+                    
+                <!-- Blog Cards -->
                 <div class="col-md-6">
                     <div class="card blog-card h-100">
 
-                        <img src="static/images/education-imp.jpeg"
+                        <img src="{{ post.featured_image.url }}"
                              class="card-img-top"
-                             alt="Learning">
+                             alt="Programming">
 
                         <div class="card-body">
-
-                            <span class="badge bg-success">
-                                Education
+                            
+                            <span class="badge bg-primary">
+                                {{ post.category.category_name }}
                             </span>
-
+                            <small class="mb-1 text-muted">
+                                {{ post.created_at | timesince }} ago | {{ post.author }}
+                            </small>
                             <h5 class="card-title mt-3">
-                                The Importance of Learning
+                                {{ post.title }}
                             </h5>
 
                             <p class="card-text">
-                                Discover how continuous learning
-                                helps you grow professionally.
+                                {{ post.short_description | truncatewords:15 }}
                             </p>
 
                             <a href="#" class="btn btn-outline-primary">
@@ -154,75 +165,12 @@
                             </a>
 
                         </div>
-                    </div>
+                    </div>                   
                 </div>
-
-
-                <!-- Blog Card 3 -->
-                <div class="col-md-6">
-                    <div class="card blog-card h-100">
-
-                        <img src="static/images/development-intro.jpeg"
-                             class="card-img-top"
-                             alt="Web development">
-
-                        <div class="card-body">
-
-                            <span class="badge bg-warning text-dark">
-                                Development
-                            </span>
-
-                            <h5 class="card-title mt-3">
-                                Introduction to Web Development
-                            </h5>
-
-                            <p class="card-text">
-                                Understand the basics of building
-                                modern websites.
-                            </p>
-
-                            <a href="#" class="btn btn-outline-primary">
-                                Read More
-                            </a>
-
-                        </div>
-                    </div>
-                </div>
-
-
-                <!-- Blog Card 4 -->
-                <div class="col-md-6">
-                    <div class="card blog-card h-100">
-
-                        <img src="static/images/lifestyle-tips.jpeg"
-                             class="card-img-top"
-                             alt="Productivity">
-
-                        <div class="card-body">
-
-                            <span class="badge bg-danger">
-                                Lifestyle
-                            </span>
-
-                            <h5 class="card-title mt-3">
-                                Tips to Improve Productivity
-                            </h5>
-
-                            <p class="card-text">
-                                Simple ways to manage your time
-                                and improve productivity.
-                            </p>
-
-                            <a href="#" class="btn btn-outline-primary">
-                                Read More
-                            </a>
-
-                        </div>
-                    </div>
-                </div>
-
+               {% endfor %}           
             </div>
-
+            </div> 
+                         
             <!-- Pagination -->
             <nav class="mt-5">
                 <ul class="pagination justify-content-center">
@@ -242,7 +190,7 @@
             </nav>
 
         </div>
-
+        
 
         <!-- Sidebar -->
         <div class="col-lg-4 mt-5 mt-lg-0">
@@ -268,18 +216,15 @@
                 <h5>Categories</h5>
 
                 <ul class="list-group list-group-flush">
+                    {% for cat in categories %}
                     <li class="list-group-item">
-                        Technology
+                        {{ cat.category_name }}
                     </li>
+                    {% empty %}
                     <li class="list-group-item">
-                        Programming
+                    No categories available.
                     </li>
-                    <li class="list-group-item">
-                        Education
-                    </li>
-                    <li class="list-group-item">
-                        Lifestyle
-                    </li>
+                   {% endfor %}
                 </ul>
             </div>
 
