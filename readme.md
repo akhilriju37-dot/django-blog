@@ -291,38 +291,313 @@ Loop through the published blog posts and display them dynamically.
 ```
 
 **Result:** The home page displays categories and published blog posts directly from the database instead of using static HTML content.
+## 11. Create a Separate Category Page
 
-create another page to seperate category
-    -create a url in urls.py----->
-        path('category/', include('blogs.urls'))
+Create a separate page to display blog posts belonging to a specific category.
 
-    create a url.py in blog app and create a url
-        create a url pattern ----->
-            urlpatterns = [
-                path('<int:category_id>', views.post_by_category, name='post_by_category')
-                ]   
+### Step 1: Configure URLs in the Main Project
 
-    views.py at blog app and add a html file -------->
-            try:
+In the main project's `urls.py`, include the URLs from the `blogs` app.
+
+```python
+from django.urls import path, include
+
+urlpatterns = [
+    # Existing URL patterns
+    path('category/', include('blogs.urls')),
+]
+```
+
+### Step 2: Create `urls.py` in the Blogs App
+
+Create a new `urls.py` file inside the `blogs` app.
+
+Add the following URL pattern:
+
+```python
+from django.urls import path
+from . import views
+
+urlpatterns = [
+    path('<int:category_id>/', views.post_by_category, name='post_by_category'),
+]
+```
+
+### Step 3: Create a Category View in `blogs/views.py`
+
+Create a view to fetch blog posts belonging to the selected category.
+
+```python
+from django.shortcuts import render, redirect
+from .models import Blog, Category
+
+def post_by_category(request, category_id):
+
+    # Fetch published posts belonging to the selected category
+    posts = Blog.objects.filter(
+        status='published',
+        category_id=category_id
+    )
+
+    # Check whether the category exists
+    try:
         category = Category.objects.get(pk=category_id)
-    except:
+    except Category.DoesNotExist:
         return redirect('home')
 
-        context = {
-            'posts': posts,
-            'category': category
-        }
-        return render(request, 'post_by_category.html', context)
+    context = {
+        'posts': posts,
+        'category': category,
+    }
 
-    create a html file in templates ---->
-        post_by_category.html------->
-            add a category wise seperated
+    return render(request, 'post_by_category.html', context)
+```
 
-404 ERROR Page---------->
-    Django is automatically dedect
-    -create 404.html
+**Important line:**
 
-    settings.py change--------->
-        DEBUG = False
-        ALLOWED_HOSTS = ['*']
+```python
+category = Category.objects.get(pk=category_id)
+```
+
+This retrieves the category using its primary key.
+
+If the category does not exist, the user is redirected to the home page.
+
+### Step 4: Create `post_by_category.html`
+
+Create a new HTML file inside the templates directory.
+
+```text
+templates/
+    post_by_category.html
+```
+
+Display the selected category and its blog posts.
+
+```django
+{% extends 'base.html' %}
+
+{% block content %}
+
+    <h2>{{ category }}</h2>
+
+    {% for post in posts %}
+
+        <h3>{{ post.title }}</h3>
+        <p>{{ post.short_description }}</p>
+
+    {% empty %}
+
+        <p>No published posts available in this category.</p>
+
+    {% endfor %}
+
+{% endblock %}
+```
+
+**Result:** Each category has a separate page displaying only its published blog posts.
+
+## 12. Configure a Custom 404 Error Page
+
+A 404 error occurs when a requested page or resource does not exist.
+
+Django automatically detects 404 errors. A custom 404 page can be created to display a user-friendly error message.
+
+### Step 1: Create `404.html`
+
+Create a new HTML file inside the templates directory.
+
+```text
+templates/
+    404.html
+```
+
+Add your custom 404 error page design.
+
+### Step 2: Update `settings.py`  -      This not using in this PROJECT
+
+For testing the custom 404 page, change the following settings:
+
+```python
+DEBUG = False
+
+ALLOWED_HOSTS = ['*']
+```
+
+**Important:**
+
+- `DEBUG = False` enables Django's custom error-page handling.
+- `ALLOWED_HOSTS = ['*']` allows requests from any host, but it is not recommended for production.
+- For production, specify your actual domain name in `ALLOWED_HOSTS`.
+
+Example:
+
+```python
+ALLOWED_HOSTS = ['example.com', 'www.example.com']
+```
+
+**Note:** A custom 404 page is optional for this project. Django can handle 404 errors without a custom template. The custom template is used to improve the user experience.
+
+## 13. Implement Template Inheritance
+
+Template inheritance helps avoid repeating the same HTML code across multiple pages.
+
+Instead of writing the header, navigation bar, hero section and other common elements in every template, create a common `base.html` file.
+
+### Step 1: Create `base.html`
+
+Create a base template inside the templates directory.
+
+```text
+templates/
+    base.html
+    home.html
+    post_by_category.html
+```
+
+### Step 2: Add Common HTML Components
+
+Move the common website components into `base.html`.
+
+Common components include:
+
+- Header
+- Navigation bar
+- Hero section
+- Search section
+- Category section
+- Pagination
+- Footer
+
+Use Django template blocks to define where individual page content should appear.
+
+```django
+<!-- Header -->
+<!-- Navigation Bar -->
+<!-- Hero Section -->
+
+<!-- Main Content -->
+
+{% block content %}
+
+{% endblock %}
+
+<!-- Search -->
+<!-- Categories -->
+<!-- Pagination -->
+<!-- Footer -->
+```
+
+### Step 3: Extend `base.html` in Other Templates
+
+In `post_by_category.html`, use template inheritance.
+
+```django
+{% extends 'base.html' %}
+
+{% block content %}
+
+    <h2>{{ category }}</h2>
+
+    {% for post in posts %}
+
+        <!-- Blog Post Content -->
+
+    {% empty %}
+
+        <p>No posts available.</p>
+
+    {% endfor %}
+
+{% endblock %}
+```
+
+**Benefits of Template Inheritance:**
+
+- Avoids duplicate HTML code.
+- Makes the project easier to maintain.
+- Allows common components to be updated in one place.
+- Keeps individual page templates simple.
+
+## 14. Create Context Processors
+
+Context processors allow you to make common data available across multiple templates without passing the same data separately from every view.
+
+For example, categories can be displayed in the navigation bar or sidebar on every page.
+
+### Step 1: Create `context_processors.py`
+
+Create a new Python file inside the `blogs` app.
+
+```text
+blogs/
+    context_processors.py
+```
+
+### Step 2: Create a Context Processor Function
+
+Add the following code:
+
+```python
+from .models import Category
+
+def get_categories(request):
+
+    categories = Category.objects.all()
+
+    return {
+        'categories': categories
+    }
+```
+
+This function retrieves all categories and makes them available through the template context.
+
+### Step 3: Register the Context Processor
+
+Open `settings.py`.
+
+Navigate to:
+
+```python
+TEMPLATES = [
+    {
+        'BACKEND': 'django.template.backends.django.DjangoTemplates',
+        'DIRS': [BASE_DIR / 'templates'],
+        'APP_DIRS': True,
+        'OPTIONS': {
+            'context_processors': [
+                # Existing context processors
+
+                'blogs.context_processors.get_categories',
+            ],
+        },
+    },
+]
+```
+
+### Step 4: Access Categories in Any Template
+
+Now you can access the categories directly in any template without passing them from individual views.
+
+Example:
+
+```django
+{% for cat in categories %}
+
+    <li>
+        {{ cat.category_name }}
+    </li>
+
+{% empty %}
+
+    <li>No categories available.</li>
+
+{% endfor %}
+```
+
+**Benefits of Context Processors:**
+
+- Makes common data available across templates.
+- Reduces repetitive code in views.
+- Useful for navigation bars, category sidebars and common website components.
 
