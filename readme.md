@@ -583,7 +583,7 @@ Example:
 
 ```django
 {% for cat in categories %}
-
+<a class="list-group-item" href="{% url 'post_by_category' cat.id %}">
     <li>
         {{ cat.category_name }}
     </li>
@@ -600,4 +600,47 @@ Example:
 - Makes common data available across templates.
 - Reduces repetitive code in views.
 - Useful for navigation bars, category sidebars and common website components.
+
+
+Single Blog Page Setup ---------->
+    slug setup ------->
+        blog_main/urls.py --->
+            path('<slug:slug>/', BlogsViews.blogs, name='blogs')
+
+        create a function blog app /views.py ---->  
+            def blogs(request, slug):
+    single_blog = get_object_or_404(Blog, slug=slug, status='published')
+        context ={
+            'single_blog': single_blog,
+        }
+    return render(request, 'blogs.html', context)
+
+
+Create assignment app------->
+    models.py--------->
+        create a class About-------->
+            about heading, about description,created at, updated at
+        Add Social link - create a class SocialLinks--------->
+            platform, link,created at, updated at
+        Create a function in 
+            def get_social_links(request):
+                social_links = SocialLinks.objects.all()
+                return dict(social_links=social_links)
+            
+            settings.py add ---> 'blogs.context_processors.get_social_links',
+
+    admin.py---------->
+        class AboutAdmin(admin.ModelAdmin):
+            def has_add_permission(self, request):
+                count = About.objects.all().count()
+                if count == 0:
+                    return True
+                return False
+
+        admin.site.register(About,AboutAdmin)
+
+    Add Social link--------->
+            platform, link,created at, updated at
+
+
 

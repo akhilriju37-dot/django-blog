@@ -1,95 +1,164 @@
+
 {% extends 'base.html' %}
 
 {% block content %}
-<!-- Main Content -->
-<div class="container my-5" id="articles">
 
-    <div class="row">
+<!-- Hero Section -->
+<section class="hero-section mb-5">
 
-        <!-- Blog Posts -->
-        <div class="col-lg-8">
+    <div class="text-center">
 
-            <h2 class="section-title mb-4">
-                Featured Articles
-            </h2>
+        <h1>Welcome to MyBlog</h1>
 
-            <div class="row g-4">
-                {% for post in featured_Post %}
-                    
-                <!-- Blog Cards -->
-                <div class="col-md-6">
-                    <div class="card blog-card h-100">
+        <p class="lead">
+            Discover stories, ideas and knowledge.
+        </p>
 
-                        <img src="{{ post.featured_image.url }}"
-                             class="card-img-top"
-                             alt="Programming">
+        <a href="#articles" class="btn btn-primary btn-lg">
+            Explore Articles
+        </a>
 
-                        <div class="card-body">
-                            
-                            <span class="badge bg-primary">
-                                {{ post.category.category_name }}
-                            </span>
-                            <small class="mb-1 text-muted">
-                                {{ post.created_at | timesince }} ago | {{ post.author }}
-                            </small>
-                            <h5 class="card-title mt-3">
-                                {{ post.title }}
-                            </h5>
+    </div>
 
-                            <p class="card-text">
-                                {{ post.short_description | truncatewords:15 }}
-                            </p>
+</section>
 
-                            <a href="#" class="btn btn-outline-primary">
-                                Read More
-                            </a>
 
-                        </div>
-                    </div>                   
+<!-- Featured Articles -->
+
+<section id="articles">
+
+    <h2 class="section-title mb-4">
+        Featured Articles
+    </h2>
+
+    <div class="row g-4">
+
+        {% for post in featured_Post %}
+
+        <div class="col-md-6">
+
+            <div class="card blog-card h-100">
+
+                <img src="{{ post.featured_image.url }}"
+                     class="card-img-top"
+                     alt="{{ post.title }}">
+
+                <div class="card-body">
+
+                    <span class="badge bg-primary">
+                        {{ post.category.category_name }}
+                    </span>
+
+                    <small class="mb-1 text-muted">
+                        {{ post.created_at|timesince }} ago |
+                        {{ post.author }}
+                    </small>
+
+                    <h5 class="card-title mt-3">
+
+                        <a href="{% url 'blogs' post.slug %} "
+                           class="text-dark text-decoration-none ">
+
+                            {{ post.title }}
+
+                        </a>
+                    </h5>
+
+                    <p class="card-text">
+                        {{ post.short_description|truncatewords:15 }}
+                    </p>
+
+                    <a href="{% url 'blogs' post.slug %}"
+                       class="btn btn-outline-primary">
+
+                        Read More
+
+                    </a>
+
                 </div>
-               {% endfor %}           
-            </div> 
-            <div class="col-lg-15">
-                <br><br>
-                 <h2 class="section-title mb-4">
-                Latest Articles
-                </h2>
-                <div class="row g-4">
-                {% for post in latest_Posts %}
-                    
-                <!-- Blog Cards -->
-                <div class="col-md-6">
-                    <div class="card blog-card h-100">
 
-                        <img src="{{ post.featured_image.url }}"
-                             class="card-img-top"
-                             alt="Programming">
-
-                        <div class="card-body">
-                            
-                            <span class="badge bg-primary">
-                                {{ post.category.category_name }}
-                            </span>
-                            <small class="mb-1 text-muted">
-                                {{ post.created_at | timesince }} ago | {{ post.author }}
-                            </small>
-                            <h5 class="card-title mt-3">
-                                {{ post.title }}
-                            </h5>
-
-                            <p class="card-text">
-                                {{ post.short_description | truncatewords:15 }}
-                            </p>
-
-                            <a href="#" class="btn btn-outline-primary">
-                                Read More
-                            </a>
-
-                        </div>
-                    </div>                   
-                </div>
-               {% endfor %}           
             </div>
-            </div> 
-                         
-        {% endblock %}   
+
+        </div>
+
+        {% empty %}
+
+        <p>No featured articles available.</p>
+
+        {% endfor %}
+
+    </div>
+
+</section>
+
+
+<!-- Latest Articles -->
+
+<section class="latest-articles mt-5">
+
+    <h2 class="section-title mb-4">
+        Latest Articles
+    </h2>
+
+    <div class="row g-4">
+
+        {% for post in latest_Posts %}
+
+        <div class="col-md-6">
+
+            <div class="card blog-card h-100">
+
+                <img src="{{ post.featured_image.url }}"
+                     class="card-img-top"
+                     alt="{{ post.title }}">
+
+                <div class="card-body">
+
+                    <span class="badge bg-primary">
+                        {{ post.category.category_name }}
+                    </span>
+
+                    <small class="mb-1 text-muted">
+                        {{ post.created_at|timesince }} ago |
+                        {{ post.author }}
+                    </small>
+
+                    <h5 class="card-title mt-3">
+
+                        <a href="{% url 'blogs' post.slug %}"
+                           class="text-dark text-decoration-none">
+
+                            {{ post.title }}
+
+                        </a>
+
+                    </h5>
+
+                    <p class="card-text">
+                        {{ post.short_description|truncatewords:15 }}
+                    </p>
+
+                    <a href="{% url 'blogs' post.slug %}"
+                       class="btn btn-outline-primary">
+
+                        Read More
+
+                    </a>
+
+                </div>
+
+            </div>
+
+        </div>
+
+        {% empty %}
+
+        <p>No latest articles available.</p>
+
+        {% endfor %}
+
+    </div>
+
+</section>
+
+{% endblock %}

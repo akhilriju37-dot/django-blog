@@ -1,0 +1,79 @@
+
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}
+    Getting Started with Python | MyBlog
+{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet"
+      href="{% static 'css/blog_detail.css' %}">
+{% endblock %}
+
+{% block content %}
+
+<div class="article-container">
+
+    <!-- Blog Heading -->
+    <div class="article-header">
+
+        <span class="article-category bg-warning fw-bold">
+            {{ single_blog.category }}
+        </span>
+
+        <h1>
+            {{ single_blog.title }}
+        </h1>
+
+        <div class="article-meta">
+            Posted on {{ single_blog.created_at }} by {{ single_blog.author }}
+        </div>
+
+    </div>
+
+
+    <!-- Featured Image -->
+    <div class="article-image">
+
+        <img src="{{ single_blog.featured_image.url }}"
+             alt="No Image found">
+
+    </div>
+
+
+    <!-- Short Description -->
+    <div class="article-description">
+
+        {{ single_blog.short_description }}
+
+    </div>
+
+
+    <!-- Full Blog Body -->
+    <div class="article-content">
+
+        <h2>
+            {{ single_blog.title }}
+        </h2>
+
+        <p>
+            {{ single_blog.blog_body }}
+        </p>
+
+        
+    </div>
+
+
+    <!-- Back Button -->
+    <div class="article-footer">
+
+        <a href="#" class="btn btn-outline-primary">
+            &larr; Back to Articles
+        </a>
+
+    </div>
+
+</div>
+
+{% endblock %}
