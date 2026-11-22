@@ -601,46 +601,439 @@ Example:
 - Reduces repetitive code in views.
 - Useful for navigation bars, category sidebars and common website components.
 
+## 15. Create a Single Blog Detail Page
 
-Single Blog Page Setup ---------->
-    slug setup ------->
-        blog_main/urls.py --->
-            path('<slug:slug>/', BlogsViews.blogs, name='blogs')
+Create a separate page to display the complete details of an individual blog post.
 
-        create a function blog app /views.py ---->  
-            def blogs(request, slug):
-    single_blog = get_object_or_404(Blog, slug=slug, status='published')
-        context ={
-            'single_blog': single_blog,
-        }
+### Step 1: Configure Slug-Based URL
+
+Open the main project's `urls.py` and add the following URL pattern:
+
+```python
+path('blog/<slug:slug>/', BlogsViews.blogs, name='blogs'),
+```
+
+The slug is used to identify individual blog posts through SEO-friendly URLs.
+
+Example:
+
+```text
+http://127.0.0.1:8000/getting-started-with-django/
+```
+
+### Step 2: Create a Blog Detail View
+
+Open `blogs/views.py` and create a function to retrieve the selected blog post.
+
+```python
+from django.shortcuts import render, get_object_or_404
+from .models import Blog
+
+def blogs(request, slug):
+
+    single_blog = get_object_or_404(
+        Blog,
+        slug=slug,
+        status='published'
+    )
+
+    context = {
+        'single_blog': single_blog,
+    }
+
     return render(request, 'blogs.html', context)
+```
 
+**Explanation:**
 
-Create assignment app------->
-    models.py--------->
-        create a class About-------->
-            about heading, about description,created at, updated at
-        Add Social link - create a class SocialLinks--------->
-            platform, link,created at, updated at
-        Create a function in 
-            def get_social_links(request):
-                social_links = SocialLinks.objects.all()
-                return dict(social_links=social_links)
-            
-            settings.py add ---> 'blogs.context_processors.get_social_links',
+- `get_object_or_404()` retrieves the blog using its slug.
+- `status='published'` ensures that only published blogs are accessible.
+- If the blog does not exist or is not published, Django returns a 404 error.
+- The selected blog is passed to the template through the context.
 
-    admin.py---------->
-        class AboutAdmin(admin.ModelAdmin):
-            def has_add_permission(self, request):
-                count = About.objects.all().count()
-                if count == 0:
-                    return True
-                return False
+### Step 3: Create `blogs.html`
 
-        admin.site.register(About,AboutAdmin)
+Create a new HTML file inside the templates directory.
 
-    Add Social link--------->
-            platform, link,created at, updated at
+```text
+templates/
+    blogs.html
+```
 
+Extend the base template:
 
+```django
+{% extends 'base.html' %}
 
+{% block content %}
+
+    <h1>{{ single_blog.title }}</h1>
+
+    <p>{{ single_blog.short_description }}</p>
+
+    <img src="{{ single_blog.featured_image.url }}"
+         alt="{{ single_blog.title }}">
+
+    <div>
+        {{ single_blog.blog_body }}
+    </div>
+
+{% endblock %}
+```
+
+**Result:** Clicking a blog post on the homepage opens its individual detail page.
+
+---
+
+## 16. Create an Assignment App
+
+Create a separate Django app to manage website information, such as About details and social media links.
+
+### Step 1: Create the App
+
+Run the following command:
+
+```bash
+python manage.py startapp assignment
+```
+
+### Step 2: Register the App
+
+Add the app to `INSTALLED_APPS` in `settings.py`.
+
+```python
+INSTALLED_APPS = [
+    # Existing applications
+    'blogs',
+    'assignment',
+]
+```
+
+### Step 3: Create the About Model
+
+Open `assignment/models.py` and create an `About` model.
+
+**Fields:**
+
+| Field | Purpose |
+|---|---|
+| about_heading | Heading for the About section |
+| about_description | Description of the website |
+| created_at | Record creation date and time |
+| updated_at | Last modification date and time |
+
+Example:
+
+```python
+from django.db import models
+
+class About(models.Model):
+    about_heading = models.CharField(max_length=200)
+    about_description = models.TextField()
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return self.about_heading
+```
+
+### Step 4: Create the SocialLinks Model
+
+Create another model to store social media links.
+
+**Fields:**
+
+| Field | Purpose |
+|---|---|
+| platform | Social media platform name |
+| link | Social media profile URL |
+| created_at | Record creation date and time |
+| updated_at | Last modification date and time |
+
+Example:
+
+```python
+class SocialLinks(models.Model):
+    platform = models.CharField(max_length=100)
+    link = models.URLField()
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return self.platform
+```
+
+### Step 5: Create a Social Links Context Processor
+
+Create a `context_processors.py` file inside the `assignment` app.
+
+```text
+assignment/
+    context_processors.py
+```
+
+Add the following function:
+
+```python
+from .models import SocialLinks
+
+def get_social_links(request):
+
+    social_links = SocialLinks.objects.all()
+
+    return {
+        'social_links': social_links
+    }
+```
+
+This function makes social media links available across all templates.
+
+### Step 6: Register the Context Processor
+
+Open `settings.py` and navigate to `TEMPLATES → OPTIONS → context_processors`.
+
+Add:
+
+```python
+'assignment.context_processors.get_social_links',
+```
+
+**Note:** Use `assignment.context_processors`, not `blogs.context_processors`, because the function belongs to the assignment app.
+
+---
+
+## 17. Configure Django Admin for About
+
+Register the About model in `assignment/admin.py`.
+
+### Step 1: Create AboutAdmin Class
+
+Use a custom admin class to allow only one About record.
+
+```python
+from django.contrib import admin
+from .models import About, SocialLinks
+
+class AboutAdmin(admin.ModelAdmin):
+
+    def has_add_permission(self, request):
+        count = About.objects.all().count()
+
+        if count == 0:
+            return True
+
+        return False
+```
+
+### Step 2: Register the About Model
+
+```python
+admin.site.register(About, AboutAdmin)
+```
+
+**Explanation:**
+
+- `has_add_permission()` controls whether a new About record can be added.
+- If no About record exists, the admin can add one.
+- If one already exists, the Add button is disabled.
+
+### Step 3: Register SocialLinks
+
+```python
+admin.site.register(SocialLinks)
+```
+
+You can now manage social media links through the Django admin panel.
+
+**Note:** This implementation prevents adding a second About record through the standard Django admin interface. It does not enforce a database-level singleton constraint or prevent duplicate records created through other methods.
+
+---
+
+## 18. Implement Blog Search Functionality
+
+Create a search feature that allows visitors to find published blog posts using keywords.
+
+### Step 1: Configure the Search URL
+
+Open the main project's `urls.py` and add:
+
+```python
+path('blogs/search/', BlogsViews.search, name='search'),
+```
+
+### Step 2: Create the Search View
+
+Open `blogs/views.py` and create the search function.
+
+```python
+from django.db.models import Q
+from .models import Blog
+
+def search(request):
+
+    keyword = request.GET.get('keyword', '').strip()
+
+    blogs = Blog.objects.none()
+
+    if keyword:
+        blogs = Blog.objects.filter(
+            Q(title__icontains=keyword) |
+            Q(short_description__icontains=keyword) |
+            Q(blog_body__icontains=keyword),
+            status='published'
+        )
+
+    context = {
+        'blogs': blogs,
+        'keyword': keyword,
+    }
+
+    return render(request, 'search.html', context)
+```
+
+### Understanding the Search Query
+
+**Q Objects:**
+
+`Q` objects allow multiple query conditions to be combined using logical operators.
+
+| Query | Purpose |
+|---|---|
+| `title__icontains` | Searches blog titles |
+| `short_description__icontains` | Searches short descriptions |
+| `blog_body__icontains` | Searches blog content |
+| `\|` | Represents OR condition |
+| `status='published'` | Displays only published blogs |
+
+**Example:**
+
+If a visitor searches for `Django`, the search function checks the title, short description and blog body for matching content.
+
+### Step 3: Create `search.html`
+
+Create a new HTML template:
+
+```text
+templates/
+    search.html
+```
+
+Extend the base template:
+
+```django
+{% extends 'base.html' %}
+
+{% block content %}
+
+    <h2>Search Results</h2>
+
+    <p>Search keyword: {{ keyword }}</p>
+
+    {% for post in blogs %}
+
+        <div class="blog-card">
+
+            <h3>{{ post.title }}</h3>
+
+            <p>{{ post.short_description }}</p>
+
+            <a href="{% url 'blogs' post.slug %}">
+                Read More
+            </a>
+
+        </div>
+
+    {% empty %}
+
+        <p>No blog posts found.</p>
+
+    {% endfor %}
+
+{% endblock %}
+```
+
+### Step 4: Add the Search Form
+
+Add the search form to your `base.html` or navbar.
+
+```django
+<form action="{% url 'search' %}" method="GET">
+
+    <input
+        type="text"
+        name="keyword"
+        placeholder="Search blogs..."
+        value="{{ request.GET.keyword }}"
+    >
+
+    <button type="submit">
+        Search
+    </button>
+
+</form>
+```
+
+**Result:** Visitors can search published blog posts using keywords and view matching results on a separate search page.
+
+---
+
+## 19. Create and Apply Migrations
+
+After creating the models in the assignment app, run the migration commands.
+
+```bash
+python manage.py makemigrations
+python manage.py migrate
+```
+
+These commands create and apply the database tables for the About and SocialLinks models.
+
+Create Registration page------------>
+    create form.py file in blog_main--------->
+        from django.contrib.auth.models import User
+        from django.contrib.auth.models import User
+        from django.contrib.auth.forms import UserCreationForm
+
+        class RegistrationForm(UserCreationForm):
+            class Meta:
+                model = User
+                fields = ('email','username','password1','password2')
+        
+    create url in blog_main/urls.py------->
+        path('register/', views.register, name='register'),
+    
+    blog_main/views.py----------->
+        
+def register(request):
+    if request.method == 'POST':
+        form = RegistrationForm(request.POST)
+        if form.is_valid():
+            form.save()
+            return redirect('register')
+        else:
+            print(form.errors)
+    else:
+        form = RegistrationForm()
+    context = {
+        'form': form,
+    }
+    return render(request, 'register.html',context)
+    create register.html---------->
+        {% block content %}
+            {% load crispy_forms_tags %}
+                {% csrf_token %}
+                {{ form | crispy }}
+        {% endblock %}
+    
+    Using Django crispy forms----------->
+        Run in Terminal
+            pip install django-crispy-forms
+            pip install crispy-bootstrap4
+        Add crispy in settings.py------->
+            CRISPY_ALLOWED_TEMPLATE_PACKS = "bootstrap4"
+            CRISPY_TEMPLATE_PACK = 'bootstrap4'
+            INSTALLED_APPS = (
+                ...
+                'crispy_forms',
+                'crispy_bootstrap4',
+            )

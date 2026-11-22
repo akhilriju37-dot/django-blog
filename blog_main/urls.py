@@ -25,8 +25,11 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('', views.home, name='home'),
     path('category/', include('blogs.urls')),
-    path('<slug:slug>/', BlogsViews.blogs, name='blogs'),
+    path('blog/<slug:slug>/', BlogsViews.blogs, name='blogs'),
     path('blogs/search/',BlogsViews.search, name='search'),
+    path('register/', views.register, name='register'),
+    path('login/', views.login, name='login'),
+    path('logout/', views.logout, name='logout'),
 ]
 if settings.DEBUG:
     urlpatterns += static(
